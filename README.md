@@ -23,24 +23,29 @@ two short files you can read in a few minutes.
 
 The list of the tracking station is how a player picks a vessel to fly, recover or terminate. After a vessel
 is terminated, the list is rebuilt, and its top row comes back dark, as a selected row does. The *Fly*,
-*Recover* and *Terminate* buttons stay grey, and the view does not move: nothing is selected. A click on that
-row changes nothing, however many times it is clicked. Below, Puceron terminated, then the top row, Capsule,
-clicked:
+*Recover* and *Terminate* buttons stay grey: nothing is selected. A click on that row changes nothing, however
+many times it is clicked. Below, two vessels, Capsule selected, then terminated:
 
-<img src="imgs/checking-terminate/stock/3-terminated.jpg" width="480" alt="After Terminate: the top row, Capsule, dark, the buttons grey, the view centred on Kerbin">
-
-<img src="imgs/checking-terminate/stock/4-top-row-clicked.jpg" width="480" alt="After a click on the top row: the same">
+<img src="imgs/why-it-matters/terminate-1-capsule-selected.jpg" width="400" alt="Capsule selected: its row dark, the Fly and Terminate buttons lit, ringed"> <img src="imgs/why-it-matters/terminate-2-capsule-terminated.jpg" width="400" alt="After Terminate: Puceron alone, its row dark, the buttons grey, ringed">
 
 *KSP 1.12.5 without this mod, with [KSP Community Fixes](https://github.com/KSPModdingLibs/KSPCommunityFixes),
-in French, in a 1280 × 720 window, in the tracking station of the save of the protocols. Puceron clicked,
-terminated, then the top row clicked.*
+in French, in a 1280 × 720 window, in the tracking station of
+[tracking-selection-two.sfs](diag/tracking-selection-two.sfs), a sandbox game with two vessels around Kerbin:
+Capsule, a ship, and Puceron, a probe. Capsule clicked, then terminated. Rings drawn on the screenshots.*
 
 The player who does not know why thinks the vessel cannot be selected. It happens after *Recover* and
 *End Track* too, and when the game loses an untracked asteroid while the tracking station is open.
 
-A filter that hides the selected vessel is worse: the vessel stays selected, with no row, and *Fly* flies it,
-while the row left on top looks selected. The protocol of [Checking a filter](docs/checking-filter.md) selects
-Quad-Rocket, shows ships alone (Capsule), clicks the top row, then *Fly*: the flight opens on Quad-Rocket.
+A filter that hides the selected vessel is worse: the vessel stays selected, with no row, and the buttons act
+on it, while the row left on top looks selected. Below, Capsule selected, then ships hidden by their filter:
+
+<img src="imgs/why-it-matters/filter-1-capsule-selected.jpg" width="400" alt="Capsule selected: its row dark, the Fly and Terminate buttons lit, ringed, and the filter of ships ringed in the top bar"> <img src="imgs/why-it-matters/filter-2-ships-hidden.jpg" width="400" alt="After the filter: Puceron alone, its row dark, the Fly and Terminate buttons still lit, ringed">
+
+*The same game and save. Capsule clicked, then the filter of ships clicked, in the top bar.*
+
+Here, *Fly* and *Terminate* act on Capsule, which the list no longer shows, not on Puceron. The protocol of
+[Checking a filter](docs/checking-filter.md) plays such a case through to *Fly*: the flight opens on the hidden
+vessel.
 
 ## The culprit: the list's toggle group lights its first row by itself
 
@@ -83,52 +88,57 @@ mod gives the stock behaviour back at once.
   list keeps no row on when no vessel is selected, as it does when the tracking station opens. A click on any
   row then selects its vessel. The group still never lets its lit row go off: a click on the selected row
   leaves it selected, as on stock.
+
+  **Why not let the group switch all its rows off.** `allowSwitchOff = true` on `listToggleGroup` also stops
+  the top row from lighting by itself, but then a click on the selected row turns it off (`Toggle.Set` no
+  longer turns it back on) while its vessel stays selected.
+
+  **Why not answer the click on the lit row.** A patch of `TrackingStationWidget.onToggle` could select the
+  vessel of a row that is on but not selected; the top row would still look selected while nothing is.
+
 - **`deselectHiddenVessel`.** Before `SpaceTracking.ConstructUIList`, when `MapViewFiltering.CheckAgainstFilter`
   says the filters hide the selected vessel, the mod calls `SpaceTracking.SetVessel(null, true)`, as *End
   Track* does for a vessel that leaves the list but stays in the game. *Fly*, *Recover* and *Terminate* go
   grey until a vessel of the list is clicked. A vessel selected by its icon while the list does not show it
   (an untracked object) is left alone, as long as the filters do not hide it.
-- **Why not let the group switch all its rows off.** `allowSwitchOff = true` on `listToggleGroup` also stops
-  the top row from lighting by itself, but then a click on the selected row turns it off (`Toggle.Set` no
-  longer turns it back on) while its vessel stays selected.
-- **Why not answer the click on the lit row.** A patch of `TrackingStationWidget.onToggle` could select the
-  vessel of a row that is on but not selected; the top row would still look selected while nothing is.
 
 ## Checked: Terminate
 
-Puceron is clicked, terminated, then the top row is clicked. On stock, the top row, Capsule, comes back dark
-with nothing selected, and the click changes nothing; with this mod, no row is dark, and the click selects
-Capsule.
+The list shows Capsule on top, then Puceron and three other vessels, none selected. Puceron is clicked,
+terminated, then the top row is clicked. On stock, the top row, Capsule, comes back dark with nothing selected,
+and the click changes nothing; with this mod, no row is dark, and the click selects Capsule.
 
 **→ Full chapter: [Checking Terminate](docs/checking-terminate.md)**
 
 ## Checked: Recover
 
-The rover on the runway is clicked, recovered, then the top row is clicked. On stock, the top row comes back
-dark with nothing selected, and the click changes nothing; with this mod, the click selects Capsule.
+The list shows Capsule on top and, among the vessels below, a rover on the runway, none selected. The rover is
+clicked, recovered, then the top row is clicked. On stock, the top row comes back dark with nothing selected, and
+the click changes nothing; with this mod, the click selects Capsule.
 
 **→ Full chapter: [Checking Recover](docs/checking-recover.md)**
 
 ## Checked: End Track
 
-A tracked asteroid is clicked, its tracking ended, then the top row is clicked. On stock, the top row comes
-back dark with nothing selected, and the click changes nothing; with this mod, the click selects Capsule.
+The list shows Capsule on top and a tracked asteroid at the bottom, none selected. The asteroid is clicked, its
+tracking ended, then the top row is clicked. On stock, the top row comes back dark with nothing selected, and the
+click changes nothing; with this mod, the click selects Capsule.
 
 **→ Full chapter: [Checking End Track](docs/checking-end-track.md)**
 
 ## Checked: an object lost
 
-An untracked asteroid is lost while the tracking station is open, nothing selected; then the top row is
-clicked. On stock, the top row turns dark by itself, and the click changes nothing; with this mod, it stays
-light, and the click selects Capsule.
+The list shows Capsule on top, none selected. An untracked asteroid, which has no row, is lost while the tracking
+station is open; then the top row is clicked. On stock, the top row turns dark by itself, and the click changes
+nothing; with this mod, it stays light, and the click selects Capsule.
 
 **→ Full chapter: [Checking an object lost](docs/checking-lost-object.md)**
 
 ## Checked: a filter
 
-Quad-Rocket is clicked, ships alone are shown, the top row is clicked, then *Fly*. On stock, Quad-Rocket
-stays selected and the flight opens on it; with this mod, it is deselected, the click selects Capsule, and the
-flight opens on Capsule.
+The list shows Capsule, the only ship, on top, and below it Quad-Rocket, a station, none selected. Quad-Rocket is
+clicked, ships alone are shown, the top row is clicked, then *Fly*. On stock, Quad-Rocket stays selected and the
+flight opens on it; with this mod, it is deselected, the click selects Capsule, and the flight opens on Capsule.
 
 **→ Full chapter: [Checking a filter](docs/checking-filter.md)**
 
