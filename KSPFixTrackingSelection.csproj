@@ -3,7 +3,7 @@
     <TargetFramework>net472</TargetFramework>
     <AssemblyName>KSPFixTrackingSelection</AssemblyName>
     <RootNamespace>com.github.lhervier.ksp.fix.trackingselection</RootNamespace>
-    <Version>0.1.0</Version>
+    <Version>0.1.0-dev</Version>
     <Description>Keeps the tracking station's list from lighting its top row with nothing selected, and deselects a vessel the filters hide</Description>
     <!-- Straight into the folder that gets copied to the GameData of KSP. -->
     <OutputPath>GameData\KSPFixTrackingSelection</OutputPath>
